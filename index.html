@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概念操作 訓練帳 v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2127;
+    --border: #2a2d35;
+    --text: #d4d0c8;
+    --text-dim: #7a7870;
+    --text-bright: #f0ece0;
+
+    --l1: #8fb4d4;
+    --l2: #88c9a0;
+    --l3: #d4a76a;
+    --l4: #d47a7a;
+    --l5: #b48cd4;
+
+    --l1-bg: rgba(143,180,212,0.07);
+    --l2-bg: rgba(136,201,160,0.07);
+    --l3-bg: rgba(212,167,106,0.07);
+    --l4-bg: rgba(212,122,122,0.07);
+    --l5-bg: rgba(180,140,212,0.07);
+
+    --accent: #c8b97a;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 40px 48px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .header-left h1 {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-bright);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .header-left p {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+  }
+  .header-right {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: right;
+    line-height: 2;
+  }
+  .version-badge {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    overflow-x: auto;
+  }
+  nav button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 400;
+    padding: 14px 20px;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.03em;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active {
+    color: var(--text-bright);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 12px;
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 8px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box::placeholder { color: var(--text-dim); }
+  .search-box:focus { border-color: var(--accent); }
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 12px;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .filter-btn:hover { color: var(--text); border-color: #444; }
+  .filter-btn.active { color: var(--bg); }
+  .filter-btn.f-all.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .filter-btn.f-l1.active { background: var(--l1); border-color: var(--l1); }
+  .filter-btn.f-l2.active { background: var(--l2); border-color: var(--l2); }
+  .filter-btn.f-l3.active { background: var(--l3); border-color: var(--l3); }
+  .filter-btn.f-l4.active { background: var(--l4); border-color: var(--l4); }
+  .filter-btn.f-l5.active { background: var(--l5); border-color: var(--l5); }
+
+  /* ── MAIN ── */
+  main {
+    padding: 32px 48px 80px;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── TABLE VIEW ── */
+  .layer-section { margin-bottom: 48px; }
+  .layer-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .layer-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+  .layer-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-bright);
+  }
+  .layer-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .l1 .layer-label { color: var(--l1); border-color: var(--l1); }
+  .l2 .layer-label { color: var(--l2); border-color: var(--l2); }
+  .l3 .layer-label { color: var(--l3); border-color: var(--l3); }
+  .l4 .layer-label { color: var(--l4); border-color: var(--l4); }
+  .l5 .layer-label { color: var(--l5); border-color: var(--l5); }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .card:hover { border-color: #444; background: var(--surface2); }
+  .card.l1:hover { border-color: var(--l1); }
+  .card.l2:hover { border-color: var(--l2); }
+  .card.l3:hover { border-color: var(--l3); }
+  .card.l4:hover { border-color: var(--l4); }
+  .card.l5:hover { border-color: var(--l5); }
+
+  .card-type {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+  }
+  .card-what {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+  .card-op {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border);
+  }
+  .card-example {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+  }
+  .tag.rhetoric { border-color: rgba(200,185,122,0.3); color: var(--accent); }
+  .tag.domain { border-color: var(--border); }
+  .tag.no-rhetoric { opacity: 0.4; }
+
+  .card-expand {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .card.open .card-expand { display: block; }
+  .expand-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .prompt-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+  .prompt-box strong {
+    font-weight: 500;
+    color: var(--text-bright);
+  }
+
+  /* ── STRUCTURE VIEW ── */
+  .struct-diagram {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .struct-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: start;
+  }
+  .struct-left {
+    text-align: right;
+    padding-top: 4px;
+  }
+  .struct-level {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .struct-weight {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .struct-right {}
+  .struct-title {
+    font-family: var(--serif);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+    padding-left: 16px;
+    border-left: 2px solid;
+  }
+  .struct-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 16px;
+    margin-bottom: 8px;
+  }
+  .struct-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-dim);
+  }
+  .struct-badge:hover { color: var(--text-bright); border-color: #555; }
+  .struct-note {
+    padding-left: 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .l1 .struct-title { border-color: var(--l1); }
+  .l2 .struct-title { border-color: var(--l2); }
+  .l3 .struct-title { border-color: var(--l3); }
+  .l4 .struct-title { border-color: var(--l4); }
+  .l5 .struct-title { border-color: var(--l5); }
+  .l1 .struct-level { color: var(--l1); }
+  .l2 .struct-level { color: var(--l2); }
+  .l3 .struct-level { color: var(--l3); }
+  .l4 .struct-level { color: var(--l4); }
+  .l5 .struct-level { color: var(--l5); }
+
+  .arrow-down {
+    text-align: center;
+    color: var(--border);
+    font-size: 20px;
+    margin: -16px 0;
+    padding-left: 120px;
+  }
+
+  /* ── COMPARE VIEW ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .compare-table th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .compare-table td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .compare-table tr:hover td { background: var(--surface); }
+  .compare-table td:first-child {
+    font-family: var(--serif);
+    font-weight: 600;
+    color: var(--text-bright);
+    white-space: nowrap;
+  }
+  .rhetoric-match { color: var(--accent); font-size: 12px; }
+  .rhetoric-none { color: var(--text-dim); font-size: 11px; font-style: italic; }
+  .domain-list { font-size: 12px; color: var(--text-dim); }
+
+  /* ── PRACTICE VIEW ── */
+  .practice-container {
+    max-width: 640px;
+  }
+  .practice-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-dim);
+  }
+  .practice-intro strong { color: var(--text-bright); font-weight: 500; }
+  .dice-section {
+    margin-bottom: 32px;
+  }
+  .dice-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .dice-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .dice-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 8px 20px;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .dice-btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+  .dice-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 400;
+  }
+  .dice-btn.primary:hover { opacity: 0.85; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    min-height: 120px;
+    transition: all 0.3s;
+  }
+  .result-empty { color: var(--text-dim); font-size: 13px; }
+  .result-type {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .result-layer {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    margin-bottom: 14px;
+  }
+  .result-prompt {
+    font-size: 13px;
+    line-height: 1.9;
+    padding: 14px;
+    background: var(--bg);
+    border-left: 3px solid var(--accent);
+    margin-bottom: 14px;
+  }
+  .result-prompt .q {
+    font-weight: 500;
+    color: var(--text-bright);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .result-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .result-meta span::before {
+    content: attr(data-label) ': ';
+    color: var(--text-dim);
+  }
+  .result-meta span {
+    color: var(--text);
+  }
+
+  .theme-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .theme-input::placeholder { color: var(--text-dim); }
+  .theme-input:focus { border-color: var(--accent); }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+  .count-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-left: 8px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 16px 48px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 700px) {
+    header, nav, .controls, main, footer { padding-left: 20px; padding-right: 20px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .struct-row { grid-template-columns: 1fr; }
+    .struct-left { text-align: left; }
+    .arrow-down { padding-left: 0; }
+    header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>概念操作 訓練帳</h1>
+    <p>CONCEPT MANIPULATION — REFERENCE & TRAINING TOOL</p>
+  </div>
+  <div class="header-right">
+    <span class="version-badge">v1.0</span><br>
+    25 類型 ／ 5 層構造<br>
+    言葉遊び → 世界観操作
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('cards', this)">類型カード</button>
+  <button onclick="showPanel('structure', this)">構造図</button>
+  <button onclick="showPanel('compare', this)">比較表</button>
+  <button onclick="showPanel('practice', this)">訓練・遊び</button>
+</nav>
+
+<div class="controls">
+  <input type="text" class="search-box" placeholder="類型・操作・例で検索…" oninput="filterCards(this.value)">
+  <div class="filter-group">
+    <button class="filter-btn f-all active" onclick="filterByLayer('all', this)">すべて</button>
+    <button class="filter-btn f-l1" onclick="filterByLayer('l1', this)">層1 表現</button>
+    <button class="filter-btn f-l2" onclick="filterByLayer('l2', this)">層2 分類</button>
+    <button class="filter-btn f-l3" onclick="filterByLayer('l3', this)">層3 構造</button>
+    <button class="filter-btn f-l4" onclick="filterByLayer('l4', this)">層4 価値</button>
+    <button class="filter-btn f-l5" onclick="filterByLayer('l5', this)">層5 存在</button>
+  </div>
+  <span class="count-badge" id="count-badge">25 / 25</span>
+</div>
+
+<main>
+
+<!-- ── CARDS PANEL ── -->
+<div id="panel-cards" class="panel active">
+  <div id="cards-container"></div>
+</div>
+
+<!-- ── STRUCTURE PANEL ── -->
+<div id="panel-structure" class="panel">
+  <div class="struct-diagram">
+
+    <div class="struct-row l1">
+      <div class="struct-left">
+        <div class="struct-level">層 1</div>
+        <div class="struct-weight">軽</div>
+      </div>
+      <div class="struct-right">
+        <div class="struct-title">表現の操作</div>
+        <div class="struct-types" id="struct-l1"></div>
+        <div class="struct-note">語・呼称・比喩・評価の向きを変える。レトリックと最も重なる層。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <div class="struct-row l2">
+      <div class="struct-left">
+        <div class="struct-level">層 2</div>
+        <div class="struct-weight">中</div>
+      </div>
+      <div class="struct-right">
+        <div class="struct-title">分類の操作</div>
+        <div class="struct-types" id="struct-l2"></div>
+        <div class="struct-note">何を同類とみなすか、どの粒度で見るかを変える。概念の輪郭をいじる。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <div class="struct-row l3">
+      <div class="struct-left">
+        <div class="struct-level">層 3</div>
+        <div class="struct-weight">重</div>
+      </div>
+      <div class="struct-right">
+        <div class="struct-title">構造の操作</div>
+        <div class="struct-types" id="struct-l3"></div>
+        <div class="struct-note">前提・因果・モデルをいじる。思考の骨格に触れる。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <div class="struct-row l4">
+      <div class="struct-left">
+        <div class="struct-level">層 4</div>
+        <div class="struct-weight">かなり重</div>
+      </div>
+      <div class="struct-right">
+        <div class="struct-title">価値・規範の操作</div>
+        <div class="struct-types" id="struct-l4"></div>
+        <div class="struct-note">良し悪しの基準・ルール・主体の設定そのものを変える。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <div class="struct-row l5">
+      <div class="struct-left">
+        <div class="struct-level">層 5</div>
+        <div class="struct-weight">最重</div>
+      </div>
+      <div class="struct-right">
+        <div class="struct-title">存在・認識・世界観の操作</div>
+        <div class="struct-types" id="struct-l5"></div>
+        <div class="struct-note">実在の切り方・知り方・前提体系ごと差し替える。レトリックの射程外。</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; padding:20px; background:var(--surface); border:1px solid var(--border);">
+      <div class="expand-label" style="margin-bottom:12px;">レトリックとの関係</div>
+      <div style="font-size:13px; line-height:2; color:var(--text-dim);">
+        <span style="color:var(--accent);">レトリック</span> → 「言い方・伝え方」の技術。層1の一部と重なる。<br>
+        <span style="color:var(--text-bright);">概念操作（層1–2）</span> → 概念の輪郭・分類をいじる。レトリックを内包・超過。<br>
+        <span style="color:var(--text-bright);">枠組み操作（層3–4）</span> → 思考の土台をいじる。レトリックの射程外。<br>
+        <span style="color:var(--l5);">認識・存在・世界観操作（層5）</span> → 世界の見え方そのものを差し替える。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── COMPARE PANEL ── -->
+<div id="panel-compare" class="panel">
+  <table class="compare-table" id="compare-table">
+    <thead>
+      <tr>
+        <th>類型</th>
+        <th>層</th>
+        <th>何を動かすか</th>
+        <th>操作</th>
+        <th>レトリック対応</th>
+        <th>適用領域</th>
+      </tr>
+    </thead>
+    <tbody id="compare-body"></tbody>
+  </table>
+</div>
+
+<!-- ── PRACTICE PANEL ── -->
+<div id="panel-practice" class="panel">
+  <div class="practice-container">
+
+    <div class="practice-intro">
+      <strong>概念操作の訓練とは：</strong><br>
+      対象（テーマ）を決め、それにどの操作類型を適用するかを選ぶ。
+      操作を施した後の「見え方の変化」を言語化する訓練です。<br><br>
+      ランダム生成でウォームアップするか、手動で類型を選んで深く掘ることができます。
+    </div>
+
+    <div class="dice-section">
+      <div class="dice-label">テーマを入力（空欄でも可）</div>
+      <input type="text" class="theme-input" id="theme-input" placeholder="例：努力、作品、言語、制度、感情、時間 …">
+
+      <div class="dice-label">操作類型を選んで訓練する</div>
+      <div class="dice-controls">
+        <button class="dice-btn primary" onclick="rollRandom()">ランダム生成</button>
+        <button class="dice-btn" onclick="rollByLayer(1)">層1のみ</button>
+        <button class="dice-btn" onclick="rollByLayer(2)">層2のみ</button>
+        <button class="dice-btn" onclick="rollByLayer(3)">層3のみ</button>
+        <button class="dice-btn" onclick="rollByLayer(4)">層4のみ</button>
+        <button class="dice-btn" onclick="rollByLayer(5)">層5のみ</button>
+      </div>
+
+      <div id="practice-result" class="result-card">
+        <div class="result-empty">↑ ボタンを押すと操作類型と訓練プロンプトが生成されます</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; border-top:1px solid var(--border); padding-top:32px;">
+      <div class="dice-label">全類型から手動選択</div>
+      <div id="manual-select" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>概念操作 訓練帳 v1.0</span>
+  <span>25 types · 5 layers · rhetoric → ontology</span>
+</footer>
+
+<script>
+const DATA = [
+  // 層1: 表現の操作
+  {
+    id:'l1-1', layer:1, type:'語義ずらし', what:'単語の意味範囲',
+    op:'既存語の意味を拡張または縮小する',
+    example:'「愛」を感情でなく行為の持続として扱う',
+    rhetoric:['換喩', '拡張的定義'],
+    domains:['概念史', '用語設計', '哲学'],
+    prompts:[
+      '「__」という語の意味範囲を、通常より広く（または狭く）再設定してみる。その再設定でどんな現象が含まれる（または除かれる）か？',
+      '「__」の「感情・状態」的な意味を「行為・プロセス」的な意味に置き換えると、説明できる現象はどう変わるか？'
+    ]
+  },
+  {
+    id:'l1-2', layer:1, type:'定義遊び', what:'概念の境界',
+    op:'必要条件・十分条件を組み替える',
+    example:'「作品」を作者性でなく受容で定義する',
+    rhetoric:['定義による論証'],
+    domains:['哲学', '法律', '制度設計', '美学'],
+    prompts:[
+      '「__」の定義から「〇〇」という要素を除くと、何が変わるか？新しい定義で含まれるもの・除かれるものをリストアップする。',
+      '「__」をAではなくBによって定義したとき、従来の用法と矛盾するケースはどこに生まれるか？'
+    ]
+  },
+  {
+    id:'l1-3', layer:1, type:'命名遊び', what:'呼称・名前',
+    op:'既存概念に別名を与え、見え方を変える',
+    example:'「失敗」を「試行の副産物」と呼ぶ',
+    rhetoric:['婉曲', '改称'],
+    domains:['政策言語', 'ブランディング', '教育'],
+    prompts:[
+      '「__」に別の名前を3つ与えてみる。それぞれの名前が持つ含意・評価の違いを比較する。',
+      '「__」をネガティブな呼称からニュートラルまたはポジティブな呼称に変えたとき、どんな行動・態度の変化が期待できるか？'
+    ]
+  },
+  {
+    id:'l1-4', layer:1, type:'比喩転換', what:'捉え方の枠',
+    op:'別領域の比喩・モデルを持ち込む',
+    example:'社会を「機械」ではなく「生態系」と見る',
+    rhetoric:['隠喩', '直喩'],
+    domains:['認知科学', 'モデル設計', '教育'],
+    prompts:[
+      '「__」を現在の支配的な比喩（A）でなく、別領域の比喩（B）で捉えなおすと何が見えるか？AとBが強調する側面の違いを言語化する。',
+      '「__」に3つの異なる比喩（機械・生物・水など）を当てはめたとき、それぞれが説明できること・できないことを整理する。'
+    ]
+  },
+  {
+    id:'l1-5', layer:1, type:'対義反転', what:'評価の向き',
+    op:'高評価・低評価の軸を反転させる',
+    example:'「弱さ」を欠点でなく感受性として扱う',
+    rhetoric:['逆説', '修辞反転'],
+    domains:['倫理学', '価値設計', '心理学'],
+    prompts:[
+      '「__」がネガティブとされる理由を明示する。次に、同じ性質をポジティブな文脈・文化・文体で語るとどうなるか？',
+      '「__」の反対語として想定されているものは何か？その反対語側から見て、「__」はどんな価値を持ちうるか？'
+    ]
+  },
+
+  // 層2: 分類の操作
+  {
+    id:'l2-1', layer:2, type:'分類遊び', what:'分類軸',
+    op:'何を同類とみなすかを変える',
+    example:'「文章」を情報量でなく作用で分類する',
+    rhetoric:['類似・対比の強調'],
+    domains:['分類学', '科学的分野区分', '批評'],
+    prompts:[
+      '「__」を現在の分類軸（例：属性・用途・形式）でなく、別の軸（例：効果・関係・時間）で分類してみる。新しい分類で同じ箱に入るものを列挙する。',
+      '「__」と一見無関係なXを同一カテゴリに入れるとしたら、どんな分類軸が必要か？'
+    ]
+  },
+  {
+    id:'l2-2', layer:2, type:'再カテゴリ化', what:'カテゴリ所属',
+    op:'既存の別の箱に入れ直す',
+    example:'哲学的論考を散文でなく設計書として見る',
+    rhetoric:['異質対比・並置'],
+    domains:['批評', '学際研究'],
+    prompts:[
+      '「__」を現在所属するジャンル・カテゴリから取り出し、全く別の領域に置いてみる。それによって何が見えるか・何が失われるか？',
+      '「__」が別のカテゴリに属していたとしたら、どんな問い・評価基準が適用されるか？'
+    ]
+  },
+  {
+    id:'l2-3', layer:2, type:'階層遊び', what:'上下・包含関係',
+    op:'上位概念と下位概念を入れ替える',
+    example:'「個人の感情」を「制度の副作用」と見る',
+    rhetoric:['一般化・特殊化'],
+    domains:['社会学', '政治哲学', '組織論'],
+    prompts:[
+      '「__」を個人レベルの現象とみなしている場合、それを上位（社会・制度・構造）の現象として再記述してみる。',
+      '逆に、「__」を大きな現象として扱っている場合、個人の行為・選択の集積として再記述するとどうなるか？'
+    ]
+  },
+  {
+    id:'l2-4', layer:2, type:'粒度調整', what:'抽象度・解像度',
+    op:'粗く見るか細かく見るかを変える',
+    example:'「恋愛」を個別関係でなく関係構造として捉える',
+    rhetoric:['一般化', '具体化'],
+    domains:['理論構築', '教育設計', '批評'],
+    prompts:[
+      '「__」を現在の粒度より一段粗く（抽象的に）見ると、どんな普遍的パターンが見えるか？',
+      '「__」をより細かい粒度（構成要素・サブプロセス）に分解すると、見えなかった何が現れるか？'
+    ]
+  },
+  {
+    id:'l2-5', layer:2, type:'切り取り遊び', what:'どこで切るか（境界設定）',
+    op:'同じ対象を別の切片・断面で見る',
+    example:'作品を筋でなく反復パターンで読む',
+    rhetoric:['焦点化', 'クローズアップ'],
+    domains:['文学批評', '映像分析', '歴史記述'],
+    prompts:[
+      '「__」を通常の時間軸・序列で読む代わりに、別の軸（反復・落差・密度）で切ってみる。何が浮き上がるか？',
+      '「__」の「終わり」をどこに設定するかを変えると、全体の意味はどう変わるか？'
+    ]
+  },
+
+  // 層3: 構造の操作
+  {
+    id:'l3-1', layer:3, type:'前提操作', what:'暗黙の前提',
+    op:'当たり前とされている前提を外す・置き換える',
+    example:'「人は合理的」という前提を外して説明する',
+    rhetoric:['前提除去の弁証術'],
+    domains:['哲学', '科学方法論', '政策分析'],
+    prompts:[
+      '「__」についての議論が暗黙に前提していることを3つ書き出す。そのうち1つを外すと、議論の結論はどう変わるか？',
+      '「__」が成り立つための隠れた条件は何か？その条件が崩れるケースを考える。'
+    ]
+  },
+  {
+    id:'l3-2', layer:3, type:'条件反転', what:'成立条件',
+    op:'必要条件・十分条件を逆向きに試す',
+    example:'「面白いには新規性が必要か」を反転検証する',
+    rhetoric:['反証', '対偶論法'],
+    domains:['論理学', '科学哲学', '批評'],
+    prompts:[
+      '「AにはBが必要だ」という命題を取り上げ、Bなしに成立するAの事例を探す。命題の修正が必要か？',
+      '「__」が成立するために必要とされているものを列挙し、それぞれが本当に必要条件かを検証する。'
+    ]
+  },
+  {
+    id:'l3-3', layer:3, type:'因果遊び', what:'因果関係の向き',
+    op:'原因と結果の向き・順序を入れ替える',
+    example:'「言葉が怒りを生成する」と「怒りが言葉を生む」を入れ替える',
+    rhetoric:['理由づけ', '反証'],
+    domains:['歴史学', '社会科学', '認知科学'],
+    prompts:[
+      '「AがBを引き起こす」という関係を逆にして「BがAを引き起こす」と仮定する。それを支持する証拠・例を探してみる。',
+      '「__」についての因果説明を「相互作用」として書き直すとどうなるか？'
+    ]
+  },
+  {
+    id:'l3-4', layer:3, type:'相互作用化', what:'単因果 → 相互依存',
+    op:'単独原因を廃止し、フィードバック関係で見る',
+    example:'価値は作品単体でなく文脈との相互作用で生まれる',
+    rhetoric:null,
+    domains:['システム論', '複雑系', '生態学'],
+    prompts:[
+      '「__」を「A→B」の一方向因果でなく、「A⇄B」のフィードバックとして図示してみる。ループのどこに介入できるか？',
+      '「__」に影響を与えている要素を5つ挙げ、それぞれが「__」にどう影響し、「__」からどう影響されるかを書く。'
+    ]
+  },
+  {
+    id:'l3-5', layer:3, type:'モデル遊び', what:'説明枠組み',
+    op:'同じ事象を別のモデル・図式で説明する',
+    example:'組織を「階層」でなく「ネットワーク」で説明する',
+    rhetoric:['アナロジー論証'],
+    domains:['科学哲学', 'システム論', '組織論'],
+    prompts:[
+      '「__」を説明するために現在使われているモデル（M1）を明示する。次に全く別のモデル（M2）で説明し直す。M1とM2の見え方の違いを比較する。',
+      '「__」に対してフロー・ネットワーク・階層・ゲームのうち最も不自然なモデルを当てはめてみる。何が浮かび上がるか？'
+    ]
+  },
+  {
+    id:'l3-6', layer:3, type:'メタ視点化', what:'観察の枠そのもの',
+    op:'対象ではなく、対象の見方を扱う',
+    example:'「何が正しいか」でなく「どう正しさを作るか」を問う',
+    rhetoric:null,
+    domains:['認識論', '批評理論', '科学社会学'],
+    prompts:[
+      '「__」について問うとき、その問い方そのものが何を前提しているか？その問いの枠を外から記述してみる。',
+      '「__」の評価基準はどこから来ているか？その基準が別の時代・文化では異なっていたか？'
+    ]
+  },
+
+  // 層4: 価値・規範の操作
+  {
+    id:'l4-1', layer:4, type:'価値反転', what:'価値判断の基準',
+    op:'良し悪しの基準・優先順位を組み替える',
+    example:'「効率より冗長性が重要」とする',
+    rhetoric:['逆説', '価値強調'],
+    domains:['倫理学', '政治哲学', '美学'],
+    prompts:[
+      '「__」で現在「良い」とされているものを列挙し、それが「悪い」となる文脈・価値観を考える。',
+      '「効率・速さ・精度」の代わりに「持続・関係・余白」を優先した場合、「__」の評価はどう変わるか？'
+    ]
+  },
+  {
+    id:'l4-2', layer:4, type:'規範転倒', what:'当然とされるルール',
+    op:'規範を逆向きに読む・外から記述する',
+    example:'「沈黙は消極性」でなく「高度な制御」とみなす',
+    rhetoric:['反語', '逆説'],
+    domains:['社会学', '制度批判', '文化研究'],
+    prompts:[
+      '「__」において「正しい振る舞い」とされているものを1つ選ぶ。それが規範として機能している社会的条件を明示する。',
+      '「__」の規範を外側から（異文化・歴史・SF）描写したとき、どう見えるか？'
+    ]
+  },
+  {
+    id:'l4-3', layer:4, type:'制度遊び', what:'社会制度・仕組み',
+    op:'制度を機能単位で解体・再設計する',
+    example:'学校を知識伝達装置でなく選別装置として見る',
+    rhetoric:null,
+    domains:['社会学', '制度設計', '教育学'],
+    prompts:[
+      '「__」という制度が実際に果たしている機能（表向きでないもの）を3つ推測する。',
+      '「__」をゼロから設計し直すとしたら、何を目的・評価軸とするか？現行制度との違いはどこか？'
+    ]
+  },
+  {
+    id:'l4-4', layer:4, type:'主体遊び', what:'誰が主体・主語か',
+    op:'個人主語を外し、別の主体を設定する',
+    example:'「私が考える」でなく「思考が私を通る」と捉える',
+    rhetoric:['受動化', '人格付与'],
+    domains:['言語哲学', '現象学', '社会構築主義'],
+    prompts:[
+      '「私が__する」という文を、別の主語（環境・制度・言語・関係）を立てて書き直す。意味はどう変わるか？',
+      '「__」において「個人の意思」とされているものが、どの程度「外部の構造」によって形成されているかを考える。'
+    ]
+  },
+
+  // 層5: 存在・認識・世界観の操作
+  {
+    id:'l5-1', layer:5, type:'存在論的操作', what:'何が存在するとみなすか',
+    op:'実在の切り方・単位を変える',
+    example:'「感情」を内面現象でなく関係現象として扱う',
+    rhetoric:null,
+    domains:['存在論', '科学哲学', '社会構築主義'],
+    prompts:[
+      '「__」を個体の内部に存在するものとして扱う代わりに、関係・プロセス・構造として記述してみる。',
+      '「__」が「存在する」ために必要な条件は何か？その条件がなければ「__」は存在しないのか？'
+    ]
+  },
+  {
+    id:'l5-2', layer:5, type:'認識論的操作', what:'何を根拠に知るか',
+    op:'知識の源泉・優先順位を変える',
+    example:'直感より観測記録を優先する、またはその逆',
+    rhetoric:null,
+    domains:['認識論', '科学方法論', '教育哲学'],
+    prompts:[
+      '「__」について「知っている」と言えるための根拠は何か？その根拠の種類（観測・証言・推論・直感）を分類し、優先順位を問い直す。',
+      '「__」を知るために現在使っている方法を一つ外したとき、何が分からなくなり、何が新たに見えるか？'
+    ]
+  },
+  {
+    id:'l5-3', layer:5, type:'パラダイム操作', what:'全体の前提体系',
+    op:'一つの領域全体の前提を差し替える',
+    example:'芸術を模倣でなく生成ルールの実験として見る',
+    rhetoric:null,
+    domains:['科学史', '思想史', '批評理論'],
+    prompts:[
+      '「__」の分野・領域が現在採用しているパラダイム（支配的前提体系）を言語化する。それを全面的に差し替えた場合、何が問われなくなり、何が新たに問えるようになるか？',
+      '「__」の歴史の中でパラダイム転換が起きた瞬間を探す。転換の前後で何が変わったか？'
+    ]
+  },
+  {
+    id:'l5-4', layer:5, type:'公理遊び', what:'議論の出発点・公理',
+    op:'議論の土台となる公理を置き換える',
+    example:'「人は損得で動く」を公理にしない',
+    rhetoric:null,
+    domains:['数学・論理学', '倫理学', '経済学', '哲学'],
+    prompts:[
+      '「__」に関する議論が出発点としている公理（無条件に正しいとしている命題）を1つ特定する。別の公理から出発すると、議論はどこへ向かうか？',
+      '「__」の分野で「自明だ」とされていることを3つ列挙し、それぞれの根拠を問う。'
+    ]
+  },
+  {
+    id:'l5-5', layer:5, type:'世界切替', what:'総合的な論理枠',
+    op:'ひとつの領域全体を別の論理・言語で記述する',
+    example:'文学を市場でなく生態系として記述する',
+    rhetoric:null,
+    domains:['学際研究', '思想実験', '理論設計'],
+    prompts:[
+      '「__」を現在記述している語彙・論理をすべて捨て、全く別の領域（生物学・物理学・経済学・ゲーム理論など）の語彙で記述し直す。何が翻訳可能で何が不可能か？',
+      '「__」の世界に、現在とは別のたった一つのルール変更を加えたとしたら、全体の構造はどう変わるか？'
+    ]
+  }
+];
+
+const LAYER_NAMES = {
+  1: '層1 ／ 表現の操作',
+  2: '層2 ／ 分類の操作',
+  3: '層3 ／ 構造の操作',
+  4: '層4 ／ 価値・規範の操作',
+  5: '層5 ／ 存在・認識・世界観の操作'
+};
+const LAYER_WEIGHT = {1:'軽', 2:'中', 3:'重', 4:'かなり重', 5:'最重'};
+
+let currentLayerFilter = 'all';
+let currentSearch = '';
+
+// ── BUILD CARDS ──
+function buildCards() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  const layers = [1,2,3,4,5];
+  layers.forEach(l => {
+    const section = document.createElement('div');
+    section.className = `layer-section`;
+    section.dataset.layer = l;
+    section.innerHTML = `
+      <div class="layer-header l${l}">
+        <span class="layer-label">層 ${l}</span>
+        <span class="layer-title">${LAYER_NAMES[l]}</span>
+        <span class="layer-desc">${LAYER_WEIGHT[l]}</span>
+      </div>
+      <div class="cards-grid" id="grid-l${l}"></div>
+    `;
+    container.appendChild(section);
+    const grid = section.querySelector('.cards-grid');
+    DATA.filter(d => d.layer === l).forEach(d => {
+      grid.appendChild(buildCard(d));
+    });
+  });
+}
+
+function buildCard(d) {
+  const div = document.createElement('div');
+  div.className = `card l${d.layer}`;
+  div.dataset.id = d.id;
+  div.dataset.layer = d.layer;
+  div.dataset.search = [d.type, d.what, d.op, d.example, ...(d.rhetoric||[]), ...d.domains].join(' ').toLowerCase();
+
+  const rhetStr = d.rhetoric
+    ? d.rhetoric.map(r => `<span class="tag rhetoric">${r}</span>`).join('')
+    : `<span class="tag rhetoric no-rhetoric">レトリック対応なし</span>`;
+  const domStr = d.domains.map(r => `<span class="tag domain">${r}</span>`).join('');
+
+  div.innerHTML = `
+    <div class="card-type">${d.type}</div>
+    <div class="card-what">↳ ${d.what}</div>
+    <div class="card-op">${d.op}</div>
+    <div class="card-example">例：${d.example}</div>
+    <div class="card-tags">${rhetStr}${domStr}</div>
+    <div class="card-expand">
+      <div class="expand-label">訓練プロンプト</div>
+      ${d.prompts.map((p,i) => `
+        <div class="prompt-box">
+          <strong>Q${i+1}：</strong>${p}
+        </div>
+      `).join('')}
+    </div>
+  `;
+  div.addEventListener('click', () => div.classList.toggle('open'));
+  return div;
+}
+
+// ── BUILD STRUCTURE ──
+function buildStructure() {
+  [1,2,3,4,5].forEach(l => {
+    const el = document.getElementById(`struct-l${l}`);
+    DATA.filter(d => d.layer === l).forEach(d => {
+      const b = document.createElement('span');
+      b.className = `struct-badge`;
+      b.textContent = d.type;
+      b.style.borderColor = `var(--l${l})`;
+      b.onclick = () => { showPanel('cards', null); filterByLayer(`l${l}`, null); };
+      el.appendChild(b);
+    });
+  });
+}
+
+// ── BUILD COMPARE ──
+function buildCompare() {
+  const tbody = document.getElementById('compare-body');
+  DATA.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.dataset.layer = d.layer;
+    const rhet = d.rhetoric
+      ? `<span class="rhetoric-match">${d.rhetoric.join('・')}</span>`
+      : `<span class="rhetoric-none">対応なし</span>`;
+    tr.innerHTML = `
+      <td>${d.type}</td>
+      <td style="color:var(--l${d.layer}); font-family:var(--mono); font-size:11px; white-space:nowrap;">層${d.layer} ${LAYER_WEIGHT[d.layer]}</td>
+      <td>${d.what}</td>
+      <td style="font-size:12px;">${d.op}</td>
+      <td>${rhet}</td>
+      <td class="domain-list">${d.domains.join('・')}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── BUILD PRACTICE ──
+function buildPractice() {
+  const container = document.getElementById('manual-select');
+  DATA.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'dice-btn';
+    btn.style.borderLeftColor = `var(--l${d.layer})`;
+    btn.textContent = d.type;
+    btn.onclick = () => showPracticeResult(d);
+    container.appendChild(btn);
+  });
+}
+
+function rollRandom() {
+  const d = DATA[Math.floor(Math.random() * DATA.length)];
+  showPracticeResult(d);
+}
+function rollByLayer(l) {
+  const pool = DATA.filter(d => d.layer === l);
+  showPracticeResult(pool[Math.floor(Math.random() * pool.length)]);
+}
+
+function showPracticeResult(d) {
+  const theme = document.getElementById('theme-input').value.trim();
+  const themeLabel = theme || '（任意のテーマ）';
+  const p = d.prompts[Math.floor(Math.random() * d.prompts.length)];
+  const filled = p.replace(/__/g, `<strong>${themeLabel}</strong>`);
+  const el = document.getElementById('practice-result');
+  el.style.borderColor = `var(--l${d.layer})`;
+  el.innerHTML = `
+    <div class="result-type">${d.type}</div>
+    <div class="result-layer" style="color:var(--l${d.layer});">${LAYER_NAMES[d.layer]} ／ ${LAYER_WEIGHT[d.layer]}</div>
+    <div class="result-prompt">
+      <span class="q">訓練プロンプト</span>
+      ${filled}
+    </div>
+    <div class="result-meta">
+      <span data-label="動かす対象">${d.what}</span>
+      <span data-label="操作">${d.op}</span>
+      ${d.rhetoric ? `<span data-label="レトリック対応">${d.rhetoric.join('・')}</span>` : ''}
+    </div>
+  `;
+}
+
+// ── FILTER & SEARCH ──
+function filterByLayer(layer, btn) {
+  currentLayerFilter = layer;
+  if (btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  applyFilters();
+}
+
+function filterCards(q) {
+  currentSearch = q.toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  let visible = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    const layerMatch = currentLayerFilter === 'all' || card.dataset.layer === currentLayerFilter.replace('l','');
+    const searchMatch = !currentSearch || card.dataset.search.includes(currentSearch);
+    const show = layerMatch && searchMatch;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  // hide empty sections
+  document.querySelectorAll('.layer-section').forEach(sec => {
+    const hasVisible = sec.querySelectorAll('.card:not(.hidden)').length > 0;
+    sec.classList.toggle('hidden', !hasVisible);
+  });
+
+  // compare table
+  document.querySelectorAll('#compare-body tr').forEach(tr => {
+    const layerMatch = currentLayerFilter === 'all' || tr.dataset.layer === currentLayerFilter.replace('l','');
+    tr.classList.toggle('hidden', !layerMatch);
+  });
+
+  document.getElementById('count-badge').textContent = `${visible} / ${DATA.length}`;
+}
+
+// ── PANELS ──
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  if (btn) {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    // find nav button
+    const navBtns = document.querySelectorAll('nav button');
+    navBtns.forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(name)) {
+        document.querySelectorAll('nav button').forEach(bb => bb.classList.remove('active'));
+        b.classList.add('active');
+      }
+    });
+  }
+  const controlsShow = ['cards', 'compare'].includes(name);
+  document.querySelector('.controls').style.display = controlsShow ? 'flex' : 'none';
+}
+
+// ── INIT ──
+buildCards();
+buildStructure();
+buildCompare();
+buildPractice();
+</script>
+</body>
+</html>
